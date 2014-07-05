@@ -12,6 +12,7 @@
 @interface Cave ()
 // Add private properties to the class extension
 @property (strong, nonatomic) NSMutableArray *grid;
+@property (strong, nonatomic) NSMutableArray *caverns;
 @end
 
 @implementation Cave
@@ -62,6 +63,10 @@
         NSLog(@"Performing transition step %lu", (unsigned long)step + 1);
         [self doTransitionStep];
     }
+    
+    [self identifyCaverns];
+    
+    [self removeDisconnectedCaverns];
     
     [self generateTiles];
     
@@ -188,6 +193,115 @@
     
     // 6
     self.grid = newGrid;
+}
+
+- (void)floodFillCavern:(NSMutableArray *)array fromCoordinate:(CGPoint)coordinate
+             fillNumber:(NSInteger)fillNumber
+{
+    // 1
+    CaveCell *cell = (CaveCell *)array[(NSUInteger)coordinate.y][(NSUInteger)coordinate.x];
+    
+    // 2
+    if (cell.type != CaveCellTypeFloor) {
+        return;
+    }
+    
+    // 3
+    cell.type = fillNumber;
+    
+    // 4
+    [[self.caverns lastObject] addObject:cell];
+    
+    // 5
+    if (coordinate.x > 0) {
+        [self floodFillCavern:array fromCoordinate:CGPointMake(coordinate.x - 1, coordinate.y)
+                   fillNumber:fillNumber];
+    }
+    if (coordinate.x < self.gridSize.width - 1) {
+        [self floodFillCavern:array fromCoordinate:CGPointMake(coordinate.x + 1, coordinate.y)
+                   fillNumber:fillNumber];
+    }
+    if (coordinate.y > 0) {
+        [self floodFillCavern:array fromCoordinate:CGPointMake(coordinate.x, coordinate.y - 1)
+                   fillNumber:fillNumber];
+    }
+    if (coordinate.y < self.gridSize.height - 1) {
+        [self floodFillCavern:array fromCoordinate:CGPointMake(coordinate.x, coordinate.y + 1)
+                   fillNumber:fillNumber];
+    }
+}
+
+- (void)identifyCaverns
+{
+    // 1
+    self.caverns = [NSMutableArray array];
+    
+    // 2
+    NSMutableArray *floodFillArray = [NSMutableArray arrayWithCapacity:(NSUInteger)self.gridSize.height];
+    
+    for (NSUInteger y = 0; y < self.gridSize.height; y++) {
+        NSMutableArray *floodFillArrayRow = [NSMutableArray arrayWithCapacity:(NSUInteger)self.gridSize.width];
+        
+        for (NSUInteger x = 0; x < self.gridSize.width; x++) {
+            CaveCell *cellToCopy = (CaveCell *)self.grid[y][x];
+            CaveCell *copiedCell = [[CaveCell alloc] initWithCoordinate:cellToCopy.coordinate];
+            copiedCell.type = cellToCopy.type;
+            [floodFillArrayRow addObject:copiedCell];
+        }
+        
+        [floodFillArray addObject:floodFillArrayRow];
+    }
+    
+    // 3
+    NSInteger fillNumber = CaveCellTypeMax;
+    for (NSUInteger y = 0; y < self.gridSize.height; y++) {
+        for (NSUInteger x = 0; x < self.gridSize.width; x++) {
+            if (((CaveCell *)floodFillArray[y][x]).type == CaveCellTypeFloor) {
+                [self.caverns addObject:[NSMutableArray array]];
+                [self floodFillCavern:floodFillArray fromCoordinate:CGPointMake(x, y) fillNumber:fillNumber];
+                fillNumber++;
+            }
+        }
+    }
+    
+    NSLog(@"Number of caverns in cave: %lu", (unsigned long)[self.caverns count]);
+}
+
+- (NSInteger)mainCavernIndex
+{
+    NSInteger mainCavernIndex = -1;
+    NSUInteger maxCavernSize = 0;
+    
+    for (NSUInteger i = 0; i < [self.caverns count]; i++) {
+        NSArray *caveCells = (NSArray *)self.caverns[i];
+        NSUInteger caveCellsCount = [caveCells count];
+        
+        if (caveCellsCount > maxCavernSize) {
+            maxCavernSize = caveCellsCount;
+            mainCavernIndex = i;
+        }
+    }
+    
+    return mainCavernIndex;
+}
+
+- (void) removeDisconnectedCaverns
+{
+    NSInteger mainCavernIndex = [self mainCavernIndex];
+    NSUInteger cavernsCount = [self.caverns count];
+    
+    if (cavernsCount > 0) {
+        for (NSUInteger i = 0; i < cavernsCount; i++) {
+            if (i != mainCavernIndex) {
+                NSArray *array = (NSArray *)self.caverns[i];
+                
+                for (CaveCell *cell in array) {
+                    ((CaveCell *)self.grid[(NSUInteger)cell.coordinate.y][(NSUInteger)cell.coordinate.x]).type =
+                    CaveCellTypeWall;
+                }
+            }
+        }
+    }
 }
 
 @end
