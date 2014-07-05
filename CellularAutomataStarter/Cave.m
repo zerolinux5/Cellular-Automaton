@@ -77,6 +77,7 @@
     }
     
     [self identifyCaverns];
+    [self placeTreasure];
     [self placeEntranceAndExit];
     
     [self generateTiles];
@@ -120,6 +121,17 @@
                 case CaveCellTypeExit:
                     node = [SKSpriteNode spriteNodeWithTexture:[self.atlas textureNamed:@"tile3_0"]];
                     break;
+                case CaveCellTypeTreasure:
+                {
+                    node = [SKSpriteNode spriteNodeWithTexture:[self.atlas textureNamed:@"tile0_0"]];
+                    
+                    SKSpriteNode *treasure = [SKSpriteNode spriteNodeWithTexture:[self.atlas textureNamed:@"treasure"]];
+                    treasure.name = @"TREASURE";
+                    treasure.position = CGPointMake(0.0f, 0.0f);
+                    [node addChild:treasure];
+                    
+                    break;
+                }
                     
                 default:
                     node = [SKSpriteNode spriteNodeWithTexture:[self.atlas textureNamed:@"tile0_0"]];
@@ -540,6 +552,27 @@
     // 6
     [self caveCellFromGridCoordinate:exitCell.coordinate].type = CaveCellTypeExit;
     _exit = [self positionForGridCoordinate:exitCell.coordinate];
+}
+
+- (void)placeTreasure
+{
+    NSUInteger treasureHiddenLimit = 4;
+    
+    for (NSUInteger y = 0; y < self.gridSize.height; y++) {
+        for (NSUInteger x = 0; x < self.gridSize.width; x++) {
+            CaveCell *cell = (CaveCell *)self.grid[y][x];
+            
+            if (cell.type == CaveCellTypeFloor) {
+                NSUInteger mooreNeighborWallCount =
+                [self countWallMooreNeighborsFromGridCoordinate:CGPointMake(x, y)];
+                
+                if (mooreNeighborWallCount > treasureHiddenLimit) {
+                    // Place treasure here
+                    cell.type = CaveCellTypeTreasure;
+                }
+            }
+        }
+    }
 }
 
 @end

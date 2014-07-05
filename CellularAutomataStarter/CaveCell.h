@@ -15,6 +15,7 @@ typedef NS_ENUM(NSInteger, CaveCellType) {
     CaveCellTypeMax,
     CaveCellTypeEntry,
     CaveCellTypeExit,
+    CaveCellTypeTreasure
 };
 
 @interface CaveCell : NSObject
