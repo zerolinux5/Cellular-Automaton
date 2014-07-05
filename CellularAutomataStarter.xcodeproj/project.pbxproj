@@ -33,6 +33,7 @@
 		442C25BF18B54FBF006D14D1 /* Player.m in Sources */ = {isa = PBXBuildFile; fileRef = 442C25BE18B54FBF006D14D1 /* Player.m */; };
 		442C261B18B55420006D14D1 /* music_license in Resources */ = {isa = PBXBuildFile; fileRef = 442C261A18B55420006D14D1 /* music_license */; };
 		442C262D18B9FE63006D14D1 /* Cave.m in Sources */ = {isa = PBXBuildFile; fileRef = 442C262C18B9FE63006D14D1 /* Cave.m */; };
+		EAC0F856196878A4008DA311 /* CaveCell.m in Sources */ = {isa = PBXBuildFile; fileRef = EAC0F855196878A4008DA311 /* CaveCell.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -81,6 +82,8 @@
 		442C261A18B55420006D14D1 /* music_license */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = music_license; path = CellularAutomataStarter/Assets/Sound/music_license; sourceTree = "<group>"; };
 		442C262B18B9FE63006D14D1 /* Cave.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Cave.h; sourceTree = "<group>"; };
 		442C262C18B9FE63006D14D1 /* Cave.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Cave.m; sourceTree = "<group>"; };
+		EAC0F854196878A4008DA311 /* CaveCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CaveCell.h; sourceTree = "<group>"; };
+		EAC0F855196878A4008DA311 /* CaveCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CaveCell.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -156,6 +159,8 @@
 				442C25BE18B54FBF006D14D1 /* Player.m */,
 				442C258818B54E26006D14D1 /* ViewController.h */,
 				442C258918B54E26006D14D1 /* ViewController.m */,
+				EAC0F854196878A4008DA311 /* CaveCell.h */,
+				EAC0F855196878A4008DA311 /* CaveCell.m */,
 			);
 			path = CellularAutomataStarter;
 			sourceTree = "<group>";
@@ -330,6 +335,7 @@
 				442C258D18B54E26006D14D1 /* MyScene.m in Sources */,
 				442C258A18B54E26006D14D1 /* ViewController.m in Sources */,
 				442C258118B54E26006D14D1 /* AppDelegate.m in Sources */,
+				EAC0F856196878A4008DA311 /* CaveCell.m in Sources */,
 				442C25BF18B54FBF006D14D1 /* Player.m in Sources */,
 				442C262D18B9FE63006D14D1 /* Cave.m in Sources */,
 				442C257D18B54E26006D14D1 /* main.m in Sources */,

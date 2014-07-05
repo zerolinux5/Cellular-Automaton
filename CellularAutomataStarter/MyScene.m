@@ -9,6 +9,7 @@
 #import "MyScene.h"
 #import "DPad.h"
 #import "Player.h"
+#import "Cave.h"
 
 // Player movement constant
 static const CGFloat kPlayerMovementSpeed = 100.0f;
@@ -20,6 +21,8 @@ static const CGFloat kPlayerMovementSpeed = 100.0f;
 @property (strong, nonatomic) Player *player;
 @property (strong, nonatomic) DPad *dPad;
 @property (assign, nonatomic) BOOL isExitingLevel;
+
+@property (strong, nonatomic) Cave *cave;
 @end
 
 @implementation MyScene
@@ -35,6 +38,10 @@ static const CGFloat kPlayerMovementSpeed = 100.0f;
     _world.name = @"WORLD";
     
     // Add code to generate new cave here
+      _cave = [[Cave alloc] initWithAtlasNamed:@"tiles" gridSize:CGSizeMake(64.0f, 64.0f)];
+      _cave.name = @"CAVE";
+      [_cave generateWithSeed:0];
+      [_world addChild:_cave];
     
     
     // Add Player

@@ -19,4 +19,6 @@
 // Initializes a new instance of the cave class with a given texture atlas and grid size
 - (instancetype)initWithAtlasNamed:(NSString *)name gridSize:(CGSize)gridSize;
 
+- (void)generateWithSeed:(unsigned int)seed;
+
 @end
