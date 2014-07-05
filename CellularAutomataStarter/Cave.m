@@ -46,7 +46,12 @@
         for (NSUInteger x = 0; x < self.gridSize.width; x++) {
             CGPoint coordinate = CGPointMake(x, y);
             CaveCell *cell = [[CaveCell alloc] initWithCoordinate:coordinate];
-            cell.type = [self randomNumberBetween0and1] < self.chanceToBecomeWall ? CaveCellTypeWall : CaveCellTypeFloor;
+            if ([self isEdgeAtGridCoordinate:coordinate]) {
+                cell.type = CaveCellTypeWall;
+            } else {
+                cell.type = [self randomNumberBetween0and1] < self.chanceToBecomeWall ? CaveCellTypeWall :
+                CaveCellTypeFloor;
+            }
             [row addObject:cell];
         }
         
@@ -573,6 +578,32 @@
             }
         }
     }
+}
+
+- (CGPoint)gridCoordinateForPosition:(CGPoint)position
+{
+    return CGPointMake((position.x / self.tileSize.width), (position.y / self.tileSize.height));
+}
+
+- (CGRect)caveCellRectFromGridCoordinate:(CGPoint)coordinate
+{
+    if ([self isValidGridCoordinate:coordinate]) {
+        CGPoint cellPosition = [self positionForGridCoordinate:coordinate];
+        
+        return CGRectMake(cellPosition.x - (self.tileSize.width / 2),
+                          cellPosition.y - (self.tileSize.height / 2),
+                          self.tileSize.width,
+                          self.tileSize.height);
+    }
+    return CGRectZero;
+}
+
+- (BOOL)isEdgeAtGridCoordinate:(CGPoint)coordinate
+{
+    return ((NSUInteger)coordinate.x == 0 ||
+            (NSUInteger)coordinate.x == (NSUInteger)self.gridSize.width - 1 ||
+            (NSUInteger)coordinate.y == 0 ||
+            (NSUInteger)coordinate.y == (NSUInteger)self.gridSize.height - 1);
 }
 
 @end

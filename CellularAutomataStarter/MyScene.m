@@ -10,6 +10,7 @@
 #import "DPad.h"
 #import "Player.h"
 #import "Cave.h"
+#import "CaveCell.h"
 
 // Player movement constant
 static const CGFloat kPlayerMovementSpeed = 100.0f;
@@ -90,6 +91,15 @@ static const CGFloat kPlayerMovementSpeed = 100.0f;
     self.player.desiredPosition = CGPointMake(self.player.position.x + velocity.x * timeSinceLast * kPlayerMovementSpeed, self.player.position.y + velocity.y * timeSinceLast * kPlayerMovementSpeed);
     
     // Insert code to detect collision between player and walls here
+      NSArray *cells = [self getCaveCellsFromRect:self.player.boundingRect];
+      
+      for (CaveCell *cell in cells) {
+          CGPoint repel = [self intersectionRepelDistanceBetweenRect:self.player.boundingRect
+                                                             andRect:[self.cave caveCellRectFromGridCoordinate:cell.coordinate]];
+          
+          self.player.desiredPosition = CGPointMake(self.player.desiredPosition.x + repel.x,
+                                                    self.player.desiredPosition.y + repel.y);
+      }
     
     // Insert code to detect if player reached exit or found treasure here
   }
@@ -108,6 +118,66 @@ static const CGFloat kPlayerMovementSpeed = 100.0f;
   // Move "camera" so the player is in the middle of the screen
   self.world.position = CGPointMake(-self.player.position.x + CGRectGetMidX(self.frame),
                                     -self.player.position.y + CGRectGetMidY(self.frame));
+}
+
+- (NSArray *)getCaveCellsFromRect:(CGRect)rect
+{
+    NSMutableArray *array = [NSMutableArray array];
+    
+    CaveCell *topLeft = [self.cave caveCellFromGridCoordinate:
+                         [self.cave gridCoordinateForPosition:rect.origin]];
+    
+    CaveCell *topRight = [self.cave caveCellFromGridCoordinate:
+                          [self.cave gridCoordinateForPosition:CGPointMake(CGRectGetMaxX(rect), CGRectGetMinY(rect))]];
+    
+    CaveCell *bottomLeft = [self.cave caveCellFromGridCoordinate:
+                            [self.cave gridCoordinateForPosition:CGPointMake(CGRectGetMinX(rect), CGRectGetMaxY(rect))]];
+    
+    CaveCell *bottomRight = [self.cave caveCellFromGridCoordinate:
+                             [self.cave gridCoordinateForPosition:CGPointMake(CGRectGetMaxX(rect), CGRectGetMaxY(rect))]];
+    
+    if (topLeft && topLeft.type == CaveCellTypeWall) {
+        [array addObject:topLeft];
+    }
+    if (topRight && topRight.type == CaveCellTypeWall && ![array containsObject:topRight]) {
+        [array addObject:topRight];
+    }
+    if (bottomLeft && bottomLeft.type == CaveCellTypeWall && ![array containsObject:bottomLeft]) {
+        [array addObject:bottomLeft];
+    }
+    if (bottomRight && bottomRight.type == CaveCellTypeWall && ![array containsObject:bottomRight]) {
+        [array addObject:bottomRight];
+    }
+    
+    return array;
+}
+
+- (CGPoint)intersectionRepelDistanceBetweenRect:(CGRect)playerRect andRect:(CGRect)cellRect
+{
+    if (CGRectIntersectsRect(playerRect, cellRect)) {
+        // 1
+        NSInteger signX = CGRectGetMaxX(playerRect) > CGRectGetMaxX(cellRect) ? 1 : -1;
+        NSInteger signY = CGRectGetMaxY(playerRect) > CGRectGetMaxY(cellRect) ? 1 : -1;
+        
+        // 2
+        CGRect intersectionRect = CGRectIntersection(playerRect, cellRect);
+        
+        // 3
+        if (CGRectGetWidth(intersectionRect) < CGRectGetHeight(intersectionRect)) {
+            // If the width is less than the height, resolve the collision horizontally
+            return CGPointMake(CGRectGetWidth(intersectionRect) * signX, 0.0f);
+        } else if (CGRectGetWidth(intersectionRect) > CGRectGetHeight(intersectionRect)) {
+            // If the width is greater than the height, resolve the collision vertically
+            return CGPointMake(0.0f, CGRectGetHeight(intersectionRect) * signY);
+        } else {
+            // If the width and height of the intersection are equal, then resolve collision
+            // both horizontally and vertically
+            return CGPointMake(CGRectGetWidth(intersectionRect) * signX,
+                               CGRectGetHeight(intersectionRect) * signY);
+        }
+    }
+    // 4
+    return CGPointZero;
 }
 
 @end

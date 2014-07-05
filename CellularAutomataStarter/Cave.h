@@ -8,6 +8,8 @@
 
 #import <SpriteKit/SpriteKit.h>
 
+@class CaveCell;
+
 @interface Cave : SKNode
 
 // The texture atlas used
@@ -35,6 +37,10 @@
 - (instancetype)initWithAtlasNamed:(NSString *)name gridSize:(CGSize)gridSize;
 
 - (void)generateWithSeed:(unsigned int)seed;
+
+- (CaveCell *)caveCellFromGridCoordinate:(CGPoint)coordinate;
+- (CGPoint)gridCoordinateForPosition:(CGPoint)position;
+- (CGRect)caveCellRectFromGridCoordinate:(CGPoint)coordinate;
 
 
 @end
