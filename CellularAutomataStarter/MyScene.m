@@ -40,6 +40,7 @@ static const CGFloat kPlayerMovementSpeed = 100.0f;
     // Add code to generate new cave here
       _cave = [[Cave alloc] initWithAtlasNamed:@"tiles" gridSize:CGSizeMake(64.0f, 64.0f)];
       _cave.name = @"CAVE";
+      _cave.connectedCave = YES;
       [_cave generateWithSeed:0];
       [_world addChild:_cave];
     

@@ -34,6 +34,7 @@
 		442C261B18B55420006D14D1 /* music_license in Resources */ = {isa = PBXBuildFile; fileRef = 442C261A18B55420006D14D1 /* music_license */; };
 		442C262D18B9FE63006D14D1 /* Cave.m in Sources */ = {isa = PBXBuildFile; fileRef = 442C262C18B9FE63006D14D1 /* Cave.m */; };
 		EAC0F856196878A4008DA311 /* CaveCell.m in Sources */ = {isa = PBXBuildFile; fileRef = EAC0F855196878A4008DA311 /* CaveCell.m */; };
+		EAC8F2371968827C001106B7 /* ShortestPathStep.m in Sources */ = {isa = PBXBuildFile; fileRef = EAC8F2361968827C001106B7 /* ShortestPathStep.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -84,6 +85,8 @@
 		442C262C18B9FE63006D14D1 /* Cave.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Cave.m; sourceTree = "<group>"; };
 		EAC0F854196878A4008DA311 /* CaveCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CaveCell.h; sourceTree = "<group>"; };
 		EAC0F855196878A4008DA311 /* CaveCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CaveCell.m; sourceTree = "<group>"; };
+		EAC8F2351968827C001106B7 /* ShortestPathStep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShortestPathStep.h; sourceTree = "<group>"; };
+		EAC8F2361968827C001106B7 /* ShortestPathStep.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShortestPathStep.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -161,6 +164,8 @@
 				442C258918B54E26006D14D1 /* ViewController.m */,
 				EAC0F854196878A4008DA311 /* CaveCell.h */,
 				EAC0F855196878A4008DA311 /* CaveCell.m */,
+				EAC8F2351968827C001106B7 /* ShortestPathStep.h */,
+				EAC8F2361968827C001106B7 /* ShortestPathStep.m */,
 			);
 			path = CellularAutomataStarter;
 			sourceTree = "<group>";
@@ -338,6 +343,7 @@
 				EAC0F856196878A4008DA311 /* CaveCell.m in Sources */,
 				442C25BF18B54FBF006D14D1 /* Player.m in Sources */,
 				442C262D18B9FE63006D14D1 /* Cave.m in Sources */,
+				EAC8F2371968827C001106B7 /* ShortestPathStep.m in Sources */,
 				442C257D18B54E26006D14D1 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

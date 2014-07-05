@@ -8,6 +8,7 @@
 
 #import "Cave.h"
 #import "CaveCell.h"
+#import "ShortestPathStep.h"
 
 @interface Cave ()
 // Add private properties to the class extension
@@ -66,7 +67,11 @@
     
     [self identifyCaverns];
     
-    [self removeDisconnectedCaverns];
+    if (self.connectedCave) {
+        [self connectToMainCavern];
+    } else {
+        [self removeDisconnectedCaverns];
+    }
     
     [self generateTiles];
     
@@ -302,6 +307,190 @@
             }
         }
     }
+}
+
+- (void)connectToMainCavern
+{
+    NSUInteger mainCavernIndex = [self mainCavernIndex];
+    
+    NSArray *mainCavern = (NSArray *)self.caverns[mainCavernIndex];
+    
+    for (NSUInteger cavernIndex = 0; cavernIndex < [self.caverns count]; cavernIndex++) {
+        if (cavernIndex != mainCavernIndex) {
+            NSArray *originCavern = self.caverns[cavernIndex];
+            CaveCell *originCell = (CaveCell *)originCavern[arc4random() % [originCavern count]];
+            CaveCell *destinationCell = (CaveCell *)mainCavern[arc4random() % [mainCavern count]];
+            [self createPathBetweenOrigin:originCell destination:destinationCell];
+        }
+    }
+}
+
+// Added inList parameter as this implementation does not use properties to store
+// open and closed lists.
+- (void)insertStep:(ShortestPathStep *)step inList:(NSMutableArray *)list
+{
+    NSInteger stepFScore = [step fScore];
+    NSInteger count = [list count];
+    NSInteger i = 0;
+    
+    for (; i < count; i++) {
+        if (stepFScore <= [[list objectAtIndex:i] fScore]) {
+            break;
+        }
+    }
+    
+    [list insertObject:step atIndex:i];
+}
+
+- (NSInteger)costToMoveFromStep:(ShortestPathStep *)fromStep toAdjacentStep:(ShortestPathStep *)toStep
+{
+    // Always returns one, as it is equally expensive to move either up, down, left or right.
+    return 1;
+}
+
+- (NSInteger)computeHScoreFromCoordinate:(CGPoint)fromCoordinate toCoordinate:(CGPoint)toCoordinate
+{
+    // Get the cell at the toCoordinate to calculate the hScore
+    CaveCell *cell = [self caveCellFromGridCoordinate:toCoordinate];
+    
+    // It is 10 times more expensive to move through wall cells than floor cells.
+    NSUInteger multiplier = cell.type = CaveCellTypeWall ? 10 : 1;
+    
+    return multiplier * (abs(toCoordinate.x - fromCoordinate.x) + abs(toCoordinate.y - fromCoordinate.y));
+}
+
+- (NSArray *)adjacentCellsCoordinateForCellCoordinate:(CGPoint)cellCoordinate
+{
+    NSMutableArray *tmp = [NSMutableArray arrayWithCapacity:4];
+    
+    // Top
+    CGPoint p = CGPointMake(cellCoordinate.x, cellCoordinate.y - 1);
+    if ([self isValidGridCoordinate:p]) {
+        [tmp addObject:[NSValue valueWithCGPoint:p]];
+    }
+    
+    // Left
+    p = CGPointMake(cellCoordinate.x - 1, cellCoordinate.y);
+    if ([self isValidGridCoordinate:p]) {
+        [tmp addObject:[NSValue valueWithCGPoint:p]];
+    }
+    
+    // Bottom
+    p = CGPointMake(cellCoordinate.x, cellCoordinate.y + 1);
+    if ([self isValidGridCoordinate:p]) {
+        [tmp addObject:[NSValue valueWithCGPoint:p]];
+    }
+    
+    // Right
+    p = CGPointMake(cellCoordinate.x + 1, cellCoordinate.y);
+    if ([self isValidGridCoordinate:p]) {
+        [tmp addObject:[NSValue valueWithCGPoint:p]];
+    }
+    
+    return [NSArray arrayWithArray:tmp];
+}
+
+- (void)createPathBetweenOrigin:(CaveCell *)originCell destination:(CaveCell *)destinationCell
+{
+    NSMutableArray *openSteps = [NSMutableArray array];
+    NSMutableArray *closedSteps = [NSMutableArray array];
+    
+    [self insertStep:[[ShortestPathStep alloc] initWithPosition:originCell.coordinate] inList:openSteps];
+    
+    do {
+        // Get the lowest F cost step.
+        // Because the list is ordered, the first step is always the one with the lowest F cost.
+        ShortestPathStep *currentStep = [openSteps firstObject];
+        
+        // Add the current step to the closed list
+        [closedSteps addObject:currentStep];
+        
+        // Remove it from the open list
+        [openSteps removeObjectAtIndex:0];
+        
+        // If the currentStep is the desired cell coordinate, we are done!
+        if (CGPointEqualToPoint(currentStep.position, destinationCell.coordinate)) {
+            // Turn the path into floors to connect the caverns
+            do {
+                if (currentStep.parent != nil) {
+                    CaveCell *cell = [self caveCellFromGridCoordinate:currentStep.position];
+                    cell.type = CaveCellTypeFloor;
+                }
+                currentStep = currentStep.parent; // Go backwards
+            } while (currentStep != nil);
+            break;
+        }
+        
+        // Get the adjacent cell coordinates of the current step
+        NSArray *adjSteps = [self adjacentCellsCoordinateForCellCoordinate:currentStep.position];
+        
+        for (NSValue *v in adjSteps) {
+            ShortestPathStep *step = [[ShortestPathStep alloc] initWithPosition:[v CGPointValue]];
+            
+            // Check if the step isn't already in the closed set
+            if ([closedSteps containsObject:step]) {
+                continue; // ignore it
+            }
+            
+            // Compute the cost form the current step to that step
+            NSInteger moveCost = [self costToMoveFromStep:currentStep toAdjacentStep:step];
+            
+            // Check if the step is already in the open list
+            NSUInteger index = [openSteps indexOfObject:step];
+            
+            if (index == NSNotFound) { // Not on the open list, so add it
+                
+                // Set the current step as the parent
+                step.parent = currentStep;
+                
+                // The G score is equal to the parent G score plus the cost to move from the parent to it
+                step.gScore = currentStep.gScore + moveCost;
+                
+                // Compute the H score, which is the estimated move cost to move from that step
+                // to the desired cell coordinate
+                step.hScore = [self computeHScoreFromCoordinate:step.position
+                                                   toCoordinate:destinationCell.coordinate];
+                
+                // Adding it with the function which is preserving the list ordered by F score
+                [self insertStep:step inList:openSteps];
+                
+            } else { // Already in the open list
+                
+                // To retrieve the old one, which has its scores already computed
+                step = [openSteps objectAtIndex:index];
+                
+                // Check to see if the G score for that step is lower if we use the current step to get there
+                if ((currentStep.gScore + moveCost) < step.gScore) {
+                    
+                    // The G score is equal to the parent G score plus the cost to move the parent to it
+                    step.gScore = currentStep.gScore + moveCost;
+                    
+                    // Because the G score has changed, the F score may have changed too.
+                    // So to keep the open list ordered we have to remove the step, and re-insert it with
+                    // the insert function, which is preserving the list ordered by F score.
+                    ShortestPathStep *preservedStep = [[ShortestPathStep alloc] initWithPosition:step.position];
+                    
+                    // Remove the step from the open list
+                    [openSteps removeObjectAtIndex:index];
+                    
+                    // Re-insert the step to the open list
+                    [self insertStep:preservedStep inList:openSteps];
+                }
+            }
+        }
+        
+    } while ([openSteps count] > 0);
+}
+
+- (void)constructPathFromStep:(ShortestPathStep *)step
+{
+    do {
+        if (step.parent != nil) {
+            CaveCell *cell = [self caveCellFromGridCoordinate:step.position];
+            cell.type = CaveCellTypeFloor;
+        }
+        step = step.parent; // Go backwards
+    } while (step != nil);
 }
 
 @end
