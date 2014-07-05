@@ -29,6 +29,9 @@
     _floorsToWallConversion = 4;
     _wallsToFloorConversion = 3;
     _numberOfTransitionSteps = 2;
+      _entrance = CGPointZero;
+      _exit = CGPointZero;
+      _minDistanceBetweenEntryAndExit = 32.0f;
   }
   return self;
 }
@@ -73,6 +76,9 @@
         [self removeDisconnectedCaverns];
     }
     
+    [self identifyCaverns];
+    [self placeEntranceAndExit];
+    
     [self generateTiles];
     
     NSLog(@"Generated cave in %f seconds", [[NSDate date] timeIntervalSinceDate:startDate]);
@@ -106,6 +112,13 @@
             switch (cell.type) {
                 case CaveCellTypeWall:
                     node = [SKSpriteNode spriteNodeWithTexture:[self.atlas textureNamed:@"tile2_0"]];
+                    break;
+                case CaveCellTypeEntry:
+                    node = [SKSpriteNode spriteNodeWithTexture:[self.atlas textureNamed:@"tile4_0"]];
+                    break;
+                    
+                case CaveCellTypeExit:
+                    node = [SKSpriteNode spriteNodeWithTexture:[self.atlas textureNamed:@"tile3_0"]];
                     break;
                     
                 default:
@@ -491,6 +504,42 @@
         }
         step = step.parent; // Go backwards
     } while (step != nil);
+}
+
+- (void)placeEntranceAndExit
+{
+    // 1
+    NSUInteger mainCavernIndex = [self mainCavernIndex];
+    NSArray *mainCavern = (NSArray *)self.caverns[mainCavernIndex];
+    
+    // 2
+    NSUInteger mainCavernCount = [mainCavern count];
+    CaveCell *entranceCell = (CaveCell *)mainCavern[arc4random() % mainCavernCount];
+    
+    // 3
+    [self caveCellFromGridCoordinate:entranceCell.coordinate].type = CaveCellTypeEntry;
+    _entrance = [self positionForGridCoordinate:entranceCell.coordinate];
+    
+    CaveCell *exitCell = nil;
+    CGFloat distance = 0.0f;
+    
+    do
+    {
+        // 4
+        exitCell = (CaveCell *)mainCavern[arc4random() % mainCavernCount];
+        
+        // 5
+        NSInteger a = (exitCell.coordinate.x - entranceCell.coordinate.x);
+        NSInteger b = (exitCell.coordinate.y - entranceCell.coordinate.y);
+        distance = sqrtf(a * a + b * b);
+        
+        NSLog(@"Distance: %f", distance);
+    }
+    while (distance < self.minDistanceBetweenEntryAndExit);
+    
+    // 6
+    [self caveCellFromGridCoordinate:exitCell.coordinate].type = CaveCellTypeExit;
+    _exit = [self positionForGridCoordinate:exitCell.coordinate];
 }
 
 @end

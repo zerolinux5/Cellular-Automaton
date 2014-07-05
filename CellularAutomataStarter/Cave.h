@@ -27,6 +27,10 @@
 
 @property (assign, nonatomic) BOOL connectedCave;
 
+@property (assign, nonatomic, readonly) CGPoint entrance;
+@property (assign, nonatomic, readonly) CGPoint exit;
+@property (assign, nonatomic) CGFloat minDistanceBetweenEntryAndExit;
+
 // Initializes a new instance of the cave class with a given texture atlas and grid size
 - (instancetype)initWithAtlasNamed:(NSString *)name gridSize:(CGSize)gridSize;
 

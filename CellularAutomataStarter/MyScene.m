@@ -48,7 +48,7 @@ static const CGFloat kPlayerMovementSpeed = 100.0f;
     // Add Player
     _player = [Player spriteNodeWithTexture:[[SKTextureAtlas atlasNamed:@"tiles"] textureNamed:@"hero_idle_1"]];
     _player.name = @"PLAYER";
-    _player.desiredPosition = CGPointZero;
+    _player.desiredPosition = _cave.entrance;
     [_world addChild:self.player];
     
     // HUD
