@@ -22,6 +22,7 @@
     // Set properties
     _atlas = [SKTextureAtlas atlasNamed:name];
     _gridSize = gridSize;
+    _tileSize = [self sizeOfTiles];
   }
   return self;
 }
@@ -91,6 +92,7 @@
             }
             
             // Add code to position node here:
+            node.position = [self positionForGridCoordinate:CGPointMake(x, y)];
             
             node.blendMode = SKBlendModeReplace;
             node.texture.filteringMode = SKTextureFilteringNearest;
@@ -98,6 +100,18 @@
             [self addChild:node];
         }
     }
+}
+
+- (CGSize)sizeOfTiles
+{
+    SKTexture *texture = [self.atlas textureNamed:@"tile0_0"];
+    return texture.size;
+}
+
+- (CGPoint)positionForGridCoordinate:(CGPoint)coordinate
+{
+    return CGPointMake(coordinate.x * self.tileSize.width + self.tileSize.width / 2.0f,
+                       (coordinate.y * self.tileSize.height + self.tileSize.height / 2.0f));
 }
 
 @end
