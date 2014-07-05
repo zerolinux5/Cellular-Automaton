@@ -24,6 +24,9 @@
     _gridSize = gridSize;
     _tileSize = [self sizeOfTiles];
     _chanceToBecomeWall = 0.45f;
+    _floorsToWallConversion = 4;
+    _wallsToFloorConversion = 3;
+    _numberOfTransitionSteps = 2;
   }
   return self;
 }
@@ -54,6 +57,12 @@
     srandom(seed);
     
     [self initializeGrid];
+    
+    for (NSUInteger step = 0; step < self.numberOfTransitionSteps; step++) {
+        NSLog(@"Performing transition step %lu", (unsigned long)step + 1);
+        [self doTransitionStep];
+    }
+    
     [self generateTiles];
     
     NSLog(@"Generated cave in %f seconds", [[NSDate date] timeIntervalSinceDate:startDate]);
@@ -120,6 +129,65 @@
 - (CGFloat) randomNumberBetween0and1
 {
     return random() / (float)0x7fffffff;
+}
+
+- (NSUInteger)countWallMooreNeighborsFromGridCoordinate:(CGPoint)coordinate
+{
+    NSUInteger wallCount = 0;
+    
+    for (NSInteger i = -1; i < 2; i++) {
+        for (NSInteger j = -1; j < 2; j++) {
+            // The middle point is the same as the passed Grid Coordinate, so skip it
+            if ( i == 0 && j == 0 ) {
+                break;
+            }
+            
+            CGPoint neighborCoordinate = CGPointMake(coordinate.x + i, coordinate.y + j);
+            if (![self isValidGridCoordinate:neighborCoordinate]) {
+                wallCount += 1;
+            } else if ([self caveCellFromGridCoordinate:neighborCoordinate].type == CaveCellTypeWall) {
+                wallCount += 1;
+            }
+        }
+    }
+    return wallCount;
+}
+
+- (void)doTransitionStep
+{
+    // 1
+    NSMutableArray *newGrid = [NSMutableArray arrayWithCapacity:(NSUInteger)self.gridSize.height];
+    
+    // 2
+    for (NSUInteger y = 0; y < self.gridSize.height; y++) {
+        NSMutableArray *newRow = [NSMutableArray arrayWithCapacity:(NSUInteger)self.gridSize.width];
+        for (NSUInteger x = 0; x < self.gridSize.width; x++) {
+            CGPoint coordinate = CGPointMake(x, y);
+            
+            // 3
+            NSUInteger mooreNeighborWallCount = [self countWallMooreNeighborsFromGridCoordinate:coordinate];
+            
+            // 4
+            CaveCell *oldCell = [self caveCellFromGridCoordinate:coordinate];
+            CaveCell *newCell = [[CaveCell alloc] initWithCoordinate:coordinate];
+            
+            // 5
+            // 5a
+            if (oldCell.type == CaveCellTypeWall) {
+                newCell.type = (mooreNeighborWallCount < self.wallsToFloorConversion) ?
+                CaveCellTypeFloor : CaveCellTypeWall;
+            } else {
+                // 5b
+                newCell.type = (mooreNeighborWallCount > self.floorsToWallConversion) ?
+                CaveCellTypeWall : CaveCellTypeFloor;
+            }
+            [newRow addObject:newCell];
+        }
+        [newGrid addObject:newRow];
+    }
+    
+    // 6
+    self.grid = newGrid;
 }
 
 @end

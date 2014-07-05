@@ -20,6 +20,11 @@
 
 @property (assign, nonatomic) CGFloat chanceToBecomeWall;
 
+@property (assign, nonatomic) NSUInteger floorsToWallConversion;
+@property (assign, nonatomic) NSUInteger wallsToFloorConversion;
+
+@property (assign, nonatomic) NSUInteger numberOfTransitionSteps;
+
 // Initializes a new instance of the cave class with a given texture atlas and grid size
 - (instancetype)initWithAtlasNamed:(NSString *)name gridSize:(CGSize)gridSize;
 

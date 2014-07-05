@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>E6D0FC2E-9DC2-401C-998E-E869C20DDA29</string>
+	<key>IDESourceControlProjectName</key>
+	<string>CellularAutomataStarter</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>BAF8793B-8C14-4678-B6AC-958B014E227E</key>
+		<string>ssh://github.com/zerolinux5/Cellular-Automaton.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>CellularAutomataStarter.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>BAF8793B-8C14-4678-B6AC-958B014E227E</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>ssh://github.com/zerolinux5/Cellular-Automaton.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>BAF8793B-8C14-4678-B6AC-958B014E227E</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>BAF8793B-8C14-4678-B6AC-958B014E227E</string>
+			<key>IDESourceControlWCCName</key>
+			<string>CellularAutomataStarter</string>
+		</dict>
+	</array>
+</dict>
+</plist>
