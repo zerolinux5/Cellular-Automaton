@@ -102,6 +102,22 @@ static const CGFloat kPlayerMovementSpeed = 100.0f;
       }
     
     // Insert code to detect if player reached exit or found treasure here
+      CaveCell *cell = [self.cave caveCellFromGridCoordinate:
+                        [self.cave gridCoordinateForPosition:self.player.position]];
+      
+      switch (cell.type) {
+          case CaveCellTypeExit:
+              [self resolveExit];
+              break;
+              
+          case CaveCellTypeTreasure:
+              [self resolveTreasureInCell:cell];
+              break;
+              
+          default:
+              break;
+      }
+
   }
   
   if (velocity.x != 0.0f) {
@@ -178,6 +194,51 @@ static const CGFloat kPlayerMovementSpeed = 100.0f;
     }
     // 4
     return CGPointZero;
+}
+
+- (void)resolveExit
+{
+    // Disable the joystick to ensure the player cannot move around after reaching the exit
+    self.isExitingLevel = YES;
+    
+    // Create actions to play the sound file for reaching the exit and add a block to transition
+    // to the next cave
+    SKAction *soundAction = [SKAction playSoundFileNamed:@"fanfare.mp3" waitForCompletion:NO];
+    SKAction *blockAction = [SKAction runBlock:^{
+        [self.view presentScene:[[MyScene alloc] initWithSize:self.size] transition:[SKTransition
+                                                                                     doorsCloseVerticalWithDuration:0.5f]];
+    }];
+    SKAction *exitAnimAction = [SKAction sequence:@[[SKAction group:@[soundAction]], blockAction]];
+    
+    // Run the action sequence
+    [self.player runAction:exitAnimAction];
+}
+
+- (void)resolveTreasureInCell:(CaveCell *)cell
+{
+    // Make this cell into a floor
+    cell.type = CaveCellTypeFloor;
+    
+    // Calculate the position of the cell within the cave
+    CGPoint cellPosition = CGPointMake(
+                                       cell.coordinate.x * self.cave.tileSize.width + self.cave.tileSize.width / 2,
+                                       (cell.coordinate.y * self.cave.tileSize.height + self.cave.tileSize.height / 2));
+    
+    // Get the node at the point of this cell
+    SKNode *node = [self.cave nodeAtPoint:cellPosition];
+    
+    if (node) {
+        // Get the treasure child node
+        if ([node.name isEqualToString:@"TREASURE"]) {
+            node = node.parent;
+        }
+        
+        // Remove the treasure child sprite node
+        [node removeAllChildren];
+        
+        // Play a sound effect for picking up the treasure
+        [node runAction:[SKAction playSoundFileNamed:@"treasure.wav" waitForCompletion:NO]];
+    }
 }
 
 @end
