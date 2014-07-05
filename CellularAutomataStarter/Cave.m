@@ -23,6 +23,7 @@
     _atlas = [SKTextureAtlas atlasNamed:name];
     _gridSize = gridSize;
     _tileSize = [self sizeOfTiles];
+    _chanceToBecomeWall = 0.45f;
   }
   return self;
 }
@@ -37,7 +38,7 @@
         for (NSUInteger x = 0; x < self.gridSize.width; x++) {
             CGPoint coordinate = CGPointMake(x, y);
             CaveCell *cell = [[CaveCell alloc] initWithCoordinate:coordinate];
-            cell.type = CaveCellTypeFloor;
+            cell.type = [self randomNumberBetween0and1] < self.chanceToBecomeWall ? CaveCellTypeWall : CaveCellTypeFloor;
             [row addObject:cell];
         }
         
@@ -49,6 +50,8 @@
 {
     NSLog(@"Generating cave...");
     NSDate *startDate = [NSDate date];
+    
+    srandom(seed);
     
     [self initializeGrid];
     [self generateTiles];
@@ -112,6 +115,11 @@
 {
     return CGPointMake(coordinate.x * self.tileSize.width + self.tileSize.width / 2.0f,
                        (coordinate.y * self.tileSize.height + self.tileSize.height / 2.0f));
+}
+
+- (CGFloat) randomNumberBetween0and1
+{
+    return random() / (float)0x7fffffff;
 }
 
 @end

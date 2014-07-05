@@ -18,6 +18,8 @@
 
 @property (assign, nonatomic, readonly) CGSize tileSize;
 
+@property (assign, nonatomic) CGFloat chanceToBecomeWall;
+
 // Initializes a new instance of the cave class with a given texture atlas and grid size
 - (instancetype)initWithAtlasNamed:(NSString *)name gridSize:(CGSize)gridSize;
 
