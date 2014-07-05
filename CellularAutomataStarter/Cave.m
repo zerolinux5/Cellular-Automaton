@@ -50,8 +50,54 @@
     NSDate *startDate = [NSDate date];
     
     [self initializeGrid];
+    [self generateTiles];
     
     NSLog(@"Generated cave in %f seconds", [[NSDate date] timeIntervalSinceDate:startDate]);
+}
+
+- (BOOL)isValidGridCoordinate:(CGPoint)coordinate
+{
+    return !(coordinate.x < 0 ||
+             coordinate.x >= self.gridSize.width ||
+             coordinate.y < 0 ||
+             coordinate.y >= self.gridSize.height);
+}
+
+- (CaveCell *)caveCellFromGridCoordinate:(CGPoint)coordinate
+{
+    if ([self isValidGridCoordinate:coordinate]) {
+        return (CaveCell *)self.grid[(NSUInteger)coordinate.y][(NSUInteger)coordinate.x];
+    }
+    
+    return nil;
+}
+
+- (void)generateTiles
+{
+    for (NSUInteger y = 0; y < self.gridSize.height; y++) {
+        for (NSUInteger x = 0; x < self.gridSize.width; x++) {
+            CaveCell *cell = [self caveCellFromGridCoordinate:CGPointMake(x, y)];
+            
+            SKSpriteNode *node;
+            
+            switch (cell.type) {
+                case CaveCellTypeWall:
+                    node = [SKSpriteNode spriteNodeWithTexture:[self.atlas textureNamed:@"tile2_0"]];
+                    break;
+                    
+                default:
+                    node = [SKSpriteNode spriteNodeWithTexture:[self.atlas textureNamed:@"tile0_0"]];
+                    break;
+            }
+            
+            // Add code to position node here:
+            
+            node.blendMode = SKBlendModeReplace;
+            node.texture.filteringMode = SKTextureFilteringNearest;
+            
+            [self addChild:node];
+        }
+    }
 }
 
 @end
